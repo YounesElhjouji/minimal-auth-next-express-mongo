@@ -15,6 +15,7 @@ import {
   getUserByEmail,
   updateUserPassword,
   getUserByResetToken,
+  getUserById,
 } from '../users';
 
 const router = express.Router();
@@ -112,7 +113,8 @@ router.post('/reset-password/:token', async (req, res) => {
 
 // Protected pofile route
 router.get('/profile', ensureAuthenticated, (req, res) => {
-  res.json({ email: req.user.email });
+  const user = getUserById(req.user.id);
+  res.json({ email: user.email });
 });
 
 export default router;

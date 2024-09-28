@@ -4,10 +4,7 @@ import { validate } from 'deep-email-validator';
 
 // Basic validation for registration inputs
 export const validateRegistration = [
-  body('email')
-    .isEmail()
-    .withMessage('Please enter a valid email address.')
-    .normalizeEmail(),
+  body('email').isEmail().withMessage('Please enter a valid email address.'),
   body('password')
     .isLength({ min: 8 })
     .withMessage('Password must be at least 8 characters long.')
@@ -21,10 +18,7 @@ export const validateRegistration = [
 
 // Basic validation for login inputs
 export const validateLogin = [
-  body('email')
-    .isEmail()
-    .withMessage('Please enter a valid email address.')
-    .normalizeEmail(),
+  body('email').isEmail().withMessage('Please enter a valid email address.'),
   body('password').notEmpty().withMessage('Password cannot be empty.'),
 ];
 
