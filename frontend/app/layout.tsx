@@ -1,5 +1,6 @@
-import './global.css';
+import { AuthProvider } from 'frontend/context/AuthContext';
 import Navbar from '../components/Navbar';
+import './global.css';
 
 export const metadata = {
   title: 'Auth App',
@@ -13,9 +14,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <Navbar />
-        <main className="container mx-auto p-4">{children}</main>
+      <body className="min-h-screen flex flex-col">
+        <AuthProvider>
+          <Navbar />
+          <main className="flex flex-col items-center justify-center flex-grow bg-gray-100">
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );

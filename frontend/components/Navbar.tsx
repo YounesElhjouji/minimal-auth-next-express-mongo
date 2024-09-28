@@ -1,39 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext'; // Import the custom hook
 
 const Navbar = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const router = useRouter();
-
-  // Check login status
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        await axios.get('http://localhost:3001/auth/profile', {
-          withCredentials: true,
-        });
-        setLoggedIn(true);
-      } catch (err) {
-        setLoggedIn(false);
-      }
-    };
-    checkLoginStatus();
-  }, []);
-
-  // Handle logout
-  const handleLogout = async () => {
-    await axios.post(
-      'http://localhost:3001/auth/logout',
-      {},
-      { withCredentials: true }
-    );
-    setLoggedIn(false);
-    router.push('/login');
-  };
+  const { loggedIn, handleLogout } = useAuth(); // Get loggedIn and handleLogout from context
 
   return (
     <nav className="bg-gray-800 p-4">

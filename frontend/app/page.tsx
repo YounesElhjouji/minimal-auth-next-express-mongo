@@ -2,12 +2,12 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+    <div className="flex flex-col items-center justify-center bg-gray-100">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-8">
+        <h1 className="text-4xl font-bold text-gray-800 mb-6">
           Welcome to the Authentication App
         </h1>
-        <ul className="flex space-x-4 justify-center">
+        <ul className="space-x-8 flex flex-row justify-center font-medium text-lg">
           <li>
             <Link
               href="/login"

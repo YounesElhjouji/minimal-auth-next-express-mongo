@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState<any>(null);
   const router = useRouter();
+  const { loggedIn, handleLogout } = useAuth(); // Get loggedIn and handleLogout from context
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -21,10 +23,10 @@ const ProfilePage = () => {
     };
 
     fetchProfile();
-  }, [router]);
+  }, [router, loggedIn]);
 
   return profile ? (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+    <div className="flex flex-col  items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold text-center text-gray-800">
           Profile
@@ -50,7 +52,7 @@ const ProfilePage = () => {
       </div>
     </div>
   ) : (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center flex-grow">
       <p className="text-lg font-semibold text-gray-700">Loading...</p>
     </div>
   );
