@@ -6,6 +6,8 @@ services:
       dockerfile: backend/Dockerfile
     ports:
       - '3001:3001'
+    env_file:
+      - ./backend/.env
     networks:
       - auth-network
 

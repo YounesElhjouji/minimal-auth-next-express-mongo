@@ -72,6 +72,7 @@ router.post('/forgot-password', async (req, res) => {
   // Configure Nodemailer transporter
   const emailAddress = process.env.EMAIL_ADDRESS ?? 'your_email_address';
   const emailPassword = process.env.EMAIL_PASSWORD ?? 'your_email_password';
+  console.log('Email Address', emailAddress);
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     host: 'smtp.gmail.com',
@@ -83,7 +84,7 @@ router.post('/forgot-password', async (req, res) => {
     },
   });
 
-  const resetLink = `http://localhost:3000/auth/reset-password/${resetToken}`;
+  const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
 
   const mailOptions = {
     from: emailAddress,

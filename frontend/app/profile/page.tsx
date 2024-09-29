@@ -28,7 +28,7 @@ const ProfilePage = () => {
 
   return profile ? (
     <div className="flex flex-col  items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h1 className="text-2xl font-bold text-center text-gray-800">
           Profile
         </h1>
