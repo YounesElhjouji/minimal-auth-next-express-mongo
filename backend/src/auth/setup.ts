@@ -39,9 +39,11 @@ export function setupAuth(app: Express) {
     }
   });
 
+  const secretKey = process.env.SESSION_SECRET_KEY ?? 'your_secret_key';
+
   app.use(
     session({
-      secret: 'your_secret_key', // Replace with your secret key
+      secret: secretKey, // Replace with your secret key
       resave: false,
       saveUninitialized: false,
       // Optionally set cookie options
