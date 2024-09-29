@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
+const serverUrl = process.env.NEXT_PUBLIC_API_URL;
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,7 +17,7 @@ const LoginPage = () => {
 
     try {
       const res = await axios.post(
-        'http://localhost:3001/auth/login',
+        `${serverUrl}/auth/login`,
         { email, password },
         { withCredentials: true }
       );

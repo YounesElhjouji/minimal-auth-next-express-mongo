@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
+const serverUrl = process.env.NEXT_PUBLIC_API_URL;
 const ProfilePage = () => {
   const [profile, setProfile] = useState<any>(null);
   const router = useRouter();
@@ -13,7 +14,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:3001/auth/profile', {
+        const res = await axios.get(`${serverUrl}/auth/profile`, {
           withCredentials: true,
         });
         setProfile(res.data);
@@ -38,7 +39,7 @@ const ProfilePage = () => {
           <button
             onClick={async () => {
               await axios.post(
-                'http://localhost:3001/auth/logout',
+                `${serverUrl}/auth/logout`,
                 {},
                 { withCredentials: true }
               );

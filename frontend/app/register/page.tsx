@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 
+const serverUrl = process.env.NEXT_PUBLIC_API_URL;
+
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +19,7 @@ const RegisterPage = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:3001/auth/register', {
+      const res = await axios.post(`${serverUrl}/auth/register`, {
         email,
         password,
       });
