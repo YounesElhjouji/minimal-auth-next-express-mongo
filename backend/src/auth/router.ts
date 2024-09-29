@@ -70,20 +70,23 @@ router.post('/forgot-password', async (req, res) => {
   user.resetToken = resetToken;
 
   // Configure Nodemailer transporter
+  const emailAddress = process.env.EMAIL_ADDRESS ?? 'your_email_address';
+  const emailPassword = process.env.EMAIL_PASSWORD ?? 'your_email_password';
   const transporter = nodemailer.createTransport({
-    host: 'smtp.example.com', // Replace with your SMTP server
-    port: 587,
-    secure: false,
+    service: 'Gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
-      user: 'your_email@example.com', // Replace with your email
-      pass: 'your_email_password', // Replace with your email password
+      user: emailAddress,
+      pass: emailPassword,
     },
   });
 
   const resetLink = `http://localhost:3000/auth/reset-password/${resetToken}`;
 
   const mailOptions = {
-    from: 'your_email@example.com', // Replace with your email
+    from: emailAddress,
     to: email,
     subject: 'Password Reset',
     text: `Click here to reset your password: ${resetLink}`,
@@ -93,6 +96,7 @@ router.post('/forgot-password', async (req, res) => {
     await transporter.sendMail(mailOptions);
     res.json({ message: 'Password reset email sent.' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Error sending email.' });
   }
 });
