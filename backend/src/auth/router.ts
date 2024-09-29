@@ -1,8 +1,6 @@
 import express from 'express';
 import passport from 'passport';
 import bcrypt from 'bcryptjs';
-import nodemailer from 'nodemailer';
-import { v4 as uuidv4 } from 'uuid';
 import {
   validateRegistration,
   validateLogin,
@@ -10,13 +8,7 @@ import {
   validateEmail,
   ensureAuthenticated,
 } from './middleware';
-import {
-  addUser,
-  getUserByEmail,
-  updateUserPassword,
-  getUserByResetToken,
-  getUserById,
-} from '../users';
+import { addUser, getUserByEmail, getUserById } from '../users';
 
 const router = express.Router();
 
@@ -55,60 +47,6 @@ router.post('/logout', (req, res, next) => {
     }
     res.json({ message: 'Logged out successfully.' });
   });
-});
-
-// Forgot Password Route
-router.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  const user = getUserByEmail(email);
-  if (!user) {
-    return res.status(400).json({ message: 'Email not found.' });
-  }
-
-  // Generate a reset token
-  const resetToken = uuidv4();
-  user.resetToken = resetToken;
-
-  // Configure Nodemailer transporter
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.example.com', // Replace with your SMTP server
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'your_email@example.com', // Replace with your email
-      pass: 'your_email_password', // Replace with your email password
-    },
-  });
-
-  const resetLink = `http://localhost:3000/auth/reset-password/${resetToken}`;
-
-  const mailOptions = {
-    from: 'your_email@example.com', // Replace with your email
-    to: email,
-    subject: 'Password Reset',
-    text: `Click here to reset your password: ${resetLink}`,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    res.json({ message: 'Password reset email sent.' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error sending email.' });
-  }
-});
-
-// Reset Password Route
-router.post('/reset-password/:token', async (req, res) => {
-  const { token } = req.params;
-  const { password } = req.body;
-  const user = getUserByResetToken(token);
-  if (!user) {
-    return res.status(400).json({ message: 'Invalid or expired token.' });
-  }
-  const hashedPassword = await bcrypt.hash(password, 10);
-  updateUserPassword(user.id, hashedPassword);
-  delete user.resetToken;
-  res.json({ message: 'Password has been reset.' });
 });
 
 // Protected pofile route

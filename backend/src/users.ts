@@ -28,19 +28,3 @@ export function getUserByEmail(email: string): User | undefined {
 export function getUserById(id: string): User | undefined {
   return users.get(id);
 }
-
-export function updateUserPassword(id: string, password: string): void {
-  const user = users.get(id);
-  if (user) {
-    user.password = password;
-  }
-}
-
-export function getUserByResetToken(token: string): User | undefined {
-  for (const user of users.values()) {
-    if (user.resetToken === token) {
-      return user;
-    }
-  }
-  return undefined;
-}
