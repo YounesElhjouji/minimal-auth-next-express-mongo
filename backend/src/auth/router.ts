@@ -116,6 +116,36 @@ router.post('/reset-password/:token', async (req, res) => {
   res.json({ message: 'Password has been reset.' });
 });
 
+// Route to initiate Google login
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+// Google callback route
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    res.redirect('http://localhost:3000/profile'); // Redirect to profile or another page after successful login
+  }
+);
+
+// Route to initiate Facebook login
+router.get(
+  '/facebook',
+  passport.authenticate('facebook', { scope: ['email'] })
+);
+
+// Facebook callback route
+router.get(
+  '/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  (req, res) => {
+    res.redirect('http://localhost:3000/profile'); // Redirect to profile or another page after successful login
+  }
+);
+
 // Protected pofile route
 router.get('/profile', ensureAuthenticated, (req, res) => {
   const user = getUserById(req.user.id);

@@ -1,9 +1,11 @@
 import passport from 'passport';
 import session from 'express-session';
 import { Strategy as LocalStrategy } from 'passport-local';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
 import bcrypt from 'bcryptjs';
 import { Express } from 'express';
-import { getUserByEmail, getUserById } from '../users';
+import { addUser, getUserByEmail, getUserById } from '../users';
 
 export function setupAuth(app: Express) {
   // Passport Local Strategy for user authentication
@@ -18,6 +20,47 @@ export function setupAuth(app: Express) {
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
           return done(null, false, { message: 'Incorrect email or password.' });
+        }
+        return done(null, user);
+      }
+    )
+  );
+
+  // Google OAuth Strategy
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID || 'your_google_client_id',
+        clientSecret:
+          process.env.GOOGLE_CLIENT_SECRET || 'your_google_client_secret',
+        callbackURL: 'http://localhost:3001/auth/google/callback',
+      },
+      (accessToken, refreshToken, profile, done) => {
+        let user = getUserByEmail(profile.emails[0].value);
+        if (!user) {
+          // If the user doesn't exist, create a new user in your database
+          user = addUser(profile.emails[0].value, null); // Password is null because we’re using Google OAuth
+        }
+        return done(null, user);
+      }
+    )
+  );
+
+  // Facebook OAuth Strategy
+  passport.use(
+    new FacebookStrategy(
+      {
+        clientID: process.env.FACEBOOK_APP_ID || 'your_facebook_app_id',
+        clientSecret:
+          process.env.FACEBOOK_APP_SECRET || 'your_facebook_app_secret',
+        callbackURL: 'http://localhost:3001/auth/facebook/callback',
+        profileFields: ['id', 'emails', 'name'],
+      },
+      (accessToken, refreshToken, profile, done) => {
+        const email = profile.emails[0].value;
+        let user = getUserByEmail(email);
+        if (!user) {
+          user = addUser(email, null);
         }
         return done(null, user);
       }

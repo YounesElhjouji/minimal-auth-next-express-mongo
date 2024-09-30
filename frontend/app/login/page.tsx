@@ -5,13 +5,16 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import Link from 'next/link';
+import { FcGoogle } from 'react-icons/fc'; // Google Icon
+import { FaFacebook, FaFacebookF } from 'react-icons/fa'; // Facebook Icon
 
 const serverUrl = process.env.NEXT_PUBLIC_API_URL;
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-  const { setLoggedIn } = useAuth(); // Get the setLoggedIn function from AuthContext
+  const { setLoggedIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +36,8 @@ const LoginPage = () => {
     <div className="flex justify-center items-center bg-gray-100 h-screen">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center text-gray-800">Login</h1>
+
+        {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6 w-96">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -60,10 +65,12 @@ const LoginPage = () => {
               required
             />
           </div>
+
+          {/* Login Button */}
           <div className="flex justify-between items-center">
             <button
               type="submit"
-              className="px-16 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="px-12 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Login
             </button>
@@ -75,6 +82,34 @@ const LoginPage = () => {
             </Link>
           </div>
         </form>
+
+        {/* Divider */}
+        <div className="flex items-center justify-center space-x-2 my-4">
+          <div className="border-t border-gray-300 w-full"></div>
+          <span className="text-gray-500">OR</span>
+          <div className="border-t border-gray-300 w-full"></div>
+        </div>
+
+        {/* Social Login Buttons */}
+        <div className="space-y-3">
+          <a
+            href={`${serverUrl}/auth/google`}
+            className="flex items-center justify-center space-x-2 p-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500"
+          >
+            <FcGoogle className="text-2xl" />
+            <span className="text-sm font-medium text-gray-700">
+              Login with Google
+            </span>
+          </a>
+
+          <a
+            href={`${serverUrl}/auth/facebook`}
+            className="flex items-center justify-center space-x-2 p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+          >
+            <FaFacebook className="text-2xl" />
+            <span className="text-sm font-medium">Login with Facebook</span>
+          </a>
+        </div>
       </div>
     </div>
   );
