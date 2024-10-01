@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import Link from 'next/link';
-import { FcGoogle } from 'react-icons/fc'; // Google Icon
-import { FaFacebook, FaFacebookF } from 'react-icons/fa'; // Facebook Icon
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
 
 const serverUrl = process.env.NEXT_PUBLIC_API_URL;
 

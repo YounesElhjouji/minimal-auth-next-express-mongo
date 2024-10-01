@@ -56,11 +56,7 @@ export function validateRequest(
 }
 
 // Ensure user is logged in
-export function ensureAuthenticated(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function ensureAuthenticated(req, res, next: NextFunction) {
   if (req.isAuthenticated()) {
     return next();
   }
