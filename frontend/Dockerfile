@@ -14,7 +14,7 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Step 6: Build the Next.js frontend app using Nx
-RUN yarn nx build frontend --prod
+RUN yarn nx build frontend --prod --skip-nx-cache
 
 # Step 7: Use a smaller Node.js image for the production environment
 FROM node:18-alpine AS production

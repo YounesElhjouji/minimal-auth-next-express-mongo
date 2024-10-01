@@ -18,8 +18,8 @@ const UserSchema: Schema = new Schema({
   provider: { type: String, required: true },
   password: { type: String, default: null },
   resetToken: { type: String, default: null },
-  googleId: { type: String, unique: true, sparse: true, default: null }, // sparse allows multiple null values
-  facebookId: { type: String, unique: true, sparse: true, default: null }, // sparse allows multiple null values
+  googleId: { type: String, default: null }, // sparse allows multiple null values
+  facebookId: { type: String, default: null }, // sparse allows multiple null values
 });
 
 // Export the User model

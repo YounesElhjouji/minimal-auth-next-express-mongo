@@ -8,6 +8,10 @@ services:
       - '3001:3001'
     env_file:
       - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/authapp
+    depends_on:
+      - mongo
     networks:
       - auth-network
 
@@ -22,6 +26,20 @@ services:
     networks:
       - auth-network
 
+  mongo:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_DATABASE: authapp
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - auth-network
+
 networks:
   auth-network:
     driver: bridge
+
+volumes:
+  mongo_data:
