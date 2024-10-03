@@ -1,4 +1,11 @@
-# Minimal Local + OAuth Authentication Project
+## Outline
+
+1. [Project Overview](#project-overview)
+2. [Features](#features)
+3. [Checkpoints](#checkpoints)
+4. [How to Run it](#how-to-run-it)
+
+## Project Overview
 
 This project serves to implement a **minimal authentication system** with both **Local** and **OAuth** strategies using the following tech stack:
 
@@ -55,9 +62,74 @@ Checkpoint branches are available for intermediate steps of this project:
 
 2. [Create credentials for Facebook Oauth](https://baserow.io/user-docs/configure-facebook-for-oauth-2-sso)
 
-- Keep client id and client secret for later
+- Keep app id and app secret for later
 
 3. [Create app password from your project's email address](https://nodemailer.com/usage/using-gmail/)
 
 - For reset password email source
 - Keep email address and app password for later
+
+### 2. Setup Environment Variables
+
+#### For Backend:
+
+In backend/.env
+
+```
+GOOGLE_CLIENT_ID={Your Google Client ID}
+GOOGLE_CLIENT_SECRET={Your Google Client Secret}
+FACEBOOK_APP_ID={Your Facebook App ID}
+FACEBOOK_APP_SECRET={Your Facebook App Secret}
+SESSION_SECRET_KEY={Randomly Generated Key base64 Key}
+EMAIL_ADDRESS={Your Project Email Address}
+EMAIL_PASSWORD={App Password for your Project Email Address}
+MONGODB_URI={URI of your MongoDB Databade}
+FRONTEND_URL={URL of the Frontend, default: "http://localhost:3000"}
+PORT={Port of the backend, default to 3001}
+```
+
+#### For Frontend:
+
+In frontend/.env.local
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:3001 // Or your backend URL
+```
+
+### 3. Run Locally
+
+Make sure you create a MongoDB Database and link it in your backend .env file
+
+In project root directory run
+
+```bash
+yarn install
+```
+
+In two separate terminals run the following commands
+
+```bash
+nx serve backend
+```
+
+AND
+
+```bash
+nx start frontend
+```
+
+### 3. Run through Docker Compose
+
+Ensure you have docker and docker-compose installed and then run
+
+In the root directory, run:
+
+```bash
+docker-compose build
+```
+
+After your images are built, start the containers using
+
+```bash
+docker-compose up
+```

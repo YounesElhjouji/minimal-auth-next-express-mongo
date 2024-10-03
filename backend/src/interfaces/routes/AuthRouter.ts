@@ -15,6 +15,7 @@ const router = express.Router();
 const userRepository = new UserRepository(); // Your MongoDB User Repository
 const userUseCases = new UserUsecases(userRepository); // Inject repository into use case
 const userController = new UserController(userUseCases); // Inject use case into controller
+const frontendUrl = process.env.FRONTEND_URL;
 
 // Registration Route
 router.post(
@@ -57,7 +58,7 @@ router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    res.redirect(`http://localhost:3000/profile`);
+    res.redirect(`${frontendUrl}/profile`);
   }
 );
 
@@ -70,7 +71,7 @@ router.get(
   '/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/login' }),
   (req, res) => {
-    res.redirect(`http://localhost:3000/profile`);
+    res.redirect(`${frontendUrl}/profile`);
   }
 );
 

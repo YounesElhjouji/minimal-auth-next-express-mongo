@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 import { Express } from 'express';
 import { UserUsecases } from '../../application/usecases/UserUsecases';
 import { UserRepository } from '../repositories/UserRepository';
-import { User } from 'backend/src/domain/entities/UserModel';
+import { User } from '../../domain/entities/UserModel';
 
 export async function setupAuth(app: Express) {
   const userRepository = new UserRepository(); // Your MongoDB User Repository
