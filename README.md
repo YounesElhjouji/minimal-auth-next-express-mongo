@@ -37,20 +37,14 @@ Checkpoint branches are available for intermediate steps of this project:
   - No password reset
   - Users stored in memory
 - **Checkpoint 2**:
-  - Email-password authentication
   - Supports password reset
-  - Users stored in memory
 - **Checkpoint 3**:
-  - Email-password authentication
   - Google/Facebook Oauth authentication
-  - Supports password reset
-  - Users stored in memory
-- **Main Branch**:
-  - Email-password authentication
-  - Google/Facebook Oauth authentication
-  - Supports password reset
+- **Checkpoint 4**:
   - Users stored in MongoDB database
   - Follows clean architecture principles
+- **Main Branch**:
+  - Adds registration confirmation through email
 
 ## How to run it
 
