@@ -8,10 +8,12 @@ import { Express } from 'express';
 import { UserUsecases } from '../../application/usecases/UserUsecases';
 import { UserRepository } from '../repositories/UserRepository';
 import { User } from '../../domain/entities/UserModel';
+import { NodeMailer } from '../NodeMailer';
 
 export async function setupAuth(app: Express) {
-  const userRepository = new UserRepository(); // Your MongoDB User Repository
-  const userUsecases = new UserUsecases(userRepository); // Inject repository into use case
+  const userRepository = new UserRepository();
+  const mailer = new NodeMailer();
+  const userUsecases = new UserUsecases(userRepository, mailer);
 
   // Passport Local Strategy for user authentication
   passport.use(
@@ -59,8 +61,11 @@ export async function setupAuth(app: Express) {
               profile.id,
               null
             );
+          } else if (user.provider != 'google') {
+            return done(null, false, {
+              message: `Email already registered for ${user.provider} account.`,
+            });
           }
-          console.log('Google User', user);
           return done(null, user);
         } catch (error) {
           return done(error);
@@ -91,8 +96,12 @@ export async function setupAuth(app: Express) {
               null,
               profile.id
             );
+          } else if (user.provider != 'facebook') {
+            return done(null, false, {
+              message: `Email already registered for ${user.provider} account.`,
+            });
           }
-          console.log('Facebook User', user);
+
           return done(null, user);
         } catch (error) {
           return done(error);
@@ -115,7 +124,6 @@ export async function setupAuth(app: Express) {
         userId = user._id;
     }
     const serializedUser = { id: userId, provider: user.provider };
-    console.log('Serialized User ', JSON.stringify(serializedUser));
     done(null, serializedUser);
   });
 

@@ -1,9 +1,10 @@
 import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 import { validate } from 'deep-email-validator';
+import { UserUsecases } from '../../application/usecases/UserUsecases';
 
 // Basic validation for registration inputs
-export const validateRegistration = [
+export const validateRegistrationCredentials = [
   body('email').isEmail().withMessage('Please enter a valid email address.'),
   body('password')
     .isLength({ min: 8 })
@@ -15,6 +16,18 @@ export const validateRegistration = [
     .matches(/\d/)
     .withMessage('Password must contain at least one number.'),
 ];
+
+export const validateRegistrationUser = (userUsecases: UserUsecases) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const user = await userUsecases.getUserByEmail(req.body.email);
+    if (user) {
+      res.status(400).json({
+        message: `Email already registered for ${user.provider} account. Login to existing account through ${user.provider} authentication.`,
+      });
+    }
+    return next();
+  };
+};
 
 // Basic validation for login inputs
 export const validateLogin = [

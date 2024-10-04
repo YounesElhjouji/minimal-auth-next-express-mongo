@@ -4,26 +4,33 @@ import { UserController } from '../controllers/UserController';
 import {
   ensureAuthenticated,
   validateRequest,
-  validateRegistration,
+  validateRegistrationCredentials,
   validateLogin,
   validateEmail,
+  validateRegistrationUser,
 } from '../middlewares/AuthMiddlewares';
 import { UserUsecases } from '../../application/usecases/UserUsecases';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
+import { NodeMailer } from '../../infrastructure/NodeMailer';
 
 const router = express.Router();
-const userRepository = new UserRepository(); // Your MongoDB User Repository
-const userUseCases = new UserUsecases(userRepository); // Inject repository into use case
-const userController = new UserController(userUseCases); // Inject use case into controller
-const frontendUrl = process.env.FRONTEND_URL;
+const userRepository = new UserRepository();
+const mailer = new NodeMailer();
+const userUsecases = new UserUsecases(userRepository, mailer);
+const userController = new UserController(userUsecases);
 
 // Registration Route
 router.post(
   '/register',
-  validateRegistration,
+  validateRegistrationUser(userUsecases),
+  validateRegistrationCredentials,
   validateRequest,
   validateEmail,
   (req: Request, res: Response) => userController.register(req, res)
+);
+
+router.post('/confirm-registration/:token', (req: Request, res: Response) =>
+  userController.confirmRegistration(req, res)
 );
 
 // Login Route (delegates to passport)
@@ -52,32 +59,27 @@ router.post('/reset-password/:token', (req, res) =>
 // Google OAuth Route
 router.get(
   '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+  })
 );
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    res.redirect(`${frontendUrl}/profile`);
-  }
-);
+
+router.get('/google/callback', (req, res, next) => {
+  userController.authenticateGoogle(req, res, next);
+});
 
 // Facebook OAuth Route
 router.get(
   '/facebook',
   passport.authenticate('facebook', { scope: ['email'] })
 );
-router.get(
-  '/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/login' }),
-  (req, res) => {
-    res.redirect(`${frontendUrl}/profile`);
-  }
-);
+
+router.get('/facebook/callback', (req, res, next) => {
+  userController.authenticateFacebook(req, res, next);
+});
 
 // Protected Profile Route
 router.get('/profile', ensureAuthenticated, (req, res) => {
-  console.log('User router', JSON.stringify(req.isAuthenticated()));
   userController.profile(req, res);
 });
 

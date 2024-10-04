@@ -1,7 +1,9 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { UserUsecases } from '../../application/usecases/UserUsecases';
-import nodemailer from 'nodemailer';
-import { v4 as uuidv4 } from 'uuid';
+import passport from 'passport';
+import { User } from '../../domain/entities/UserModel';
+
+const frontendUrl = process.env.FRONTEND_URL;
 
 export class UserController {
   private userUsecases: UserUsecases;
@@ -14,30 +16,31 @@ export class UserController {
   async register(req: Request, res: Response) {
     const { email, password } = req.body;
     try {
-      const existingUser = await this.userUsecases.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(400).json({ message: 'Email already registered.' });
-      }
-
       const newUser = await this.userUsecases.addUser(email, 'local', password);
+      await this.userUsecases.sendConfirmationEmail(newUser);
       res
-        .status(201)
-        .json({ message: 'User registered successfully.', newUser });
+        .status(200)
+        .json({ message: 'Check email to confirm your account', newUser });
     } catch (err) {
+      console.error(err.stack);
       res
         .status(500)
         .json({ message: 'Error registering user', error: err.message });
     }
   }
 
-  // Login (delegated to passport middleware)
+  async confirmRegistration(req: Request, res: Response) {
+    const { token } = req.params;
+    await this.userUsecases.confirmUserRegistration(token);
+    res.status(200).json({ message: 'User confirmed Successfully' });
+  }
+
   login(req: Request, res: Response) {
     res.json({ message: 'Logged in successfully.' });
   }
 
-  // Logout
-  logout(req: Request, res: Response, next: any) {
-    req.logout((err: any) => {
+  logout(req: Request, res: Response, next: NextFunction) {
+    req.logout((err) => {
       if (err) {
         return next(err);
       }
@@ -45,7 +48,6 @@ export class UserController {
     });
   }
 
-  // Forgot Password
   async forgotPassword(req: Request, res: Response) {
     const { email } = req.body;
     try {
@@ -53,30 +55,7 @@ export class UserController {
       if (!user) {
         return res.status(400).json({ message: 'Email not found.' });
       }
-
-      // Generate reset token and save it
-      const resetToken = uuidv4();
-      user.resetToken = resetToken;
-      await this.userUsecases.updateUserPassword(user._id, user.password); // Update the token in the DB
-
-      // Send email with reset link
-      const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-          user: process.env.EMAIL_ADDRESS,
-          pass: process.env.EMAIL_PASSWORD,
-        },
-      });
-
-      const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-      const mailOptions = {
-        from: process.env.EMAIL_ADDRESS,
-        to: email,
-        subject: 'Password Reset',
-        text: `Click here to reset your password: ${resetLink}`,
-      };
-
-      await transporter.sendMail(mailOptions);
+      this.userUsecases.sendResetEmail(user);
       res.json({ message: 'Password reset email sent.' });
     } catch (err) {
       res
@@ -85,7 +64,6 @@ export class UserController {
     }
   }
 
-  // Reset Password
   async resetPassword(req: Request, res: Response) {
     const { token } = req.params;
     const { password } = req.body;
@@ -94,7 +72,6 @@ export class UserController {
       if (!user) {
         return res.status(400).json({ message: 'Invalid or expired token.' });
       }
-
       await this.userUsecases.updateUserPassword(user._id, password);
       res.json({ message: 'Password has been reset.' });
     } catch (err) {
@@ -104,10 +81,52 @@ export class UserController {
     }
   }
 
-  // Google/Facebook login can stay as passport middleware routes.
+  authenticateGoogle(req: Request, res: Response, next: NextFunction) {
+    passport.authenticate('google', (err: Error | null, user: User, info) => {
+      if (err) {
+        return res.redirect(`${frontendUrl}/login?error=Internal server error`);
+      }
 
+      if (!user) {
+        const errorMessage = info?.message || 'Authentication failed';
+        return res.redirect(
+          `${frontendUrl}/login?error=${encodeURIComponent(errorMessage)}`
+        );
+      }
+
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          return res.redirect(`${frontendUrl}/login?error=Login failed`);
+        }
+
+        return res.redirect(`${frontendUrl}/profile`);
+      });
+    })(req, res, next);
+  }
+
+  authenticateFacebook(req: Request, res: Response, next: NextFunction) {
+    passport.authenticate('facebook', (err: Error | null, user: User, info) => {
+      if (err) {
+        return res.redirect(`${frontendUrl}/login?error=Internal server error`);
+      }
+
+      if (!user) {
+        const errorMessage = info?.message || 'Authentication failed';
+        return res.redirect(
+          `${frontendUrl}/login?error=${encodeURIComponent(errorMessage)}`
+        );
+      }
+
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          return res.redirect(`${frontendUrl}/login?error=Login failed`);
+        }
+
+        return res.redirect(`${frontendUrl}/profile`);
+      });
+    })(req, res, next);
+  }
   profile(req, res) {
-    console.log('User', JSON.stringify(req.user));
     this.userUsecases
       .getUserById(req.user._id)
       .then((user) => {

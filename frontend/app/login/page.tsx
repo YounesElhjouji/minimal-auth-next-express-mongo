@@ -1,26 +1,41 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import Link from 'next/link';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
+import { FaCircleExclamation } from 'react-icons/fa6';
 
 const serverUrl = process.env.NEXT_PUBLIC_API_URL;
 
+const ErrorView = () => {
+  const searchParams = useSearchParams();
+  const queryError = searchParams.get('error');
+
+  if (!queryError) return null; // Don't render anything if there's no error.
+
+  return (
+    <div className="flex items-center gap-3 px-4 py-2 bg-red-100 border border-red-300 rounded-md shadow-sm">
+      <FaCircleExclamation className="text-2xl text-red-600" />
+      <p className="text-red-800 font-medium">{queryError}</p>
+    </div>
+  );
+};
+
 const LoginPage = () => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
   const { setLoggedIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(
+      await axios.post(
         `${serverUrl}/auth/login`,
         { email, password },
         { withCredentials: true }
@@ -36,7 +51,9 @@ const LoginPage = () => {
     <div className="flex justify-center items-center bg-gray-100 h-screen">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center text-gray-800">Login</h1>
-
+        <Suspense>
+          <ErrorView />
+        </Suspense>
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6 w-96">
           <div>
