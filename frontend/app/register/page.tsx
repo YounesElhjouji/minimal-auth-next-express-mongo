@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { ErrorView, SuccessView } from '../../components/FormMessages';
 
 const serverUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -9,12 +10,13 @@ const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [messageView, setMessageView] = useState(<></>);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setMessageView(<ErrorView message="Passwords do not match" />);
       return;
     }
 
@@ -23,9 +25,17 @@ const RegisterPage = () => {
         email,
         password,
       });
-      alert(res.data.message);
+      setMessageView(
+        <SuccessView message="Check email to confirm registration" />
+      );
     } catch (err) {
-      alert('Error registering');
+      if (axios.isAxiosError(err)) {
+        const message: string =
+          err.response?.data?.message || 'An unexpected error occurred';
+        setMessageView(<ErrorView message={message} />);
+      } else {
+        setMessageView(<ErrorView message="An unexpected error occurred" />);
+      }
     }
   };
 
@@ -35,6 +45,7 @@ const RegisterPage = () => {
         <h1 className="text-2xl font-bold text-center text-gray-800">
           Register
         </h1>
+        {messageView}
         <form onSubmit={handleSubmit} className="space-y-6 w-96">
           <div>
             <label className="block text-sm font-medium text-gray-700">

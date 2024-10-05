@@ -22,10 +22,11 @@ export const validateRegistrationUser = (userUsecases: UserUsecases) => {
     const user = await userUsecases.getUserByEmail(req.body.email);
     if (user) {
       res.status(400).json({
-        message: `Email already registered for ${user.provider} account. Login to existing account through ${user.provider} authentication.`,
+        message: `Email already registered for ${user.provider} account.`,
       });
+    } else {
+      return next();
     }
-    return next();
   };
 };
 
@@ -51,6 +52,7 @@ export async function validateEmail(
       reason: validationResult.reason,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Email validation failed', error });
   }
 }
@@ -64,8 +66,9 @@ export function validateRequest(
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
+  } else {
+    next();
   }
-  next();
 }
 
 // Ensure user is logged in

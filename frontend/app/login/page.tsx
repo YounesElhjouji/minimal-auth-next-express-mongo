@@ -1,28 +1,31 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import Link from 'next/link';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
-import { FaCircleExclamation } from 'react-icons/fa6';
+import { ErrorView } from '../../components/FormMessages';
 
 const serverUrl = process.env.NEXT_PUBLIC_API_URL;
 
-const ErrorView = () => {
+const QueryErrorView = ({
+  setMessageView,
+}: {
+  setMessageView: (view: React.JSX.Element) => void;
+}) => {
   const searchParams = useSearchParams();
   const queryError = searchParams.get('error');
 
-  if (!queryError) return null; // Don't render anything if there's no error.
+  useEffect(() => {
+    if (queryError) {
+      setMessageView(<ErrorView message={queryError} />);
+    }
+  });
 
-  return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-red-100 border border-red-300 rounded-md shadow-sm">
-      <FaCircleExclamation className="text-2xl text-red-600" />
-      <p className="text-red-800 font-medium">{queryError}</p>
-    </div>
-  );
+  return null;
 };
 
 const LoginPage = () => {
@@ -30,6 +33,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { setLoggedIn } = useAuth();
+  const [messageView, setMessageView] = useState(<></>);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +47,8 @@ const LoginPage = () => {
       setLoggedIn(true);
       router.push('/profile');
     } catch (err) {
-      alert('Invalid credentials');
+      console.error(err);
+      setMessageView(<ErrorView message={'Invalid credentials'} />);
     }
   };
 
@@ -52,9 +57,9 @@ const LoginPage = () => {
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center text-gray-800">Login</h1>
         <Suspense>
-          <ErrorView />
+          <QueryErrorView setMessageView={setMessageView} />
         </Suspense>
-        {/* Login Form */}
+        {messageView}
         <form onSubmit={handleSubmit} className="space-y-6 w-96">
           <div>
             <label className="block text-sm font-medium text-gray-700">
